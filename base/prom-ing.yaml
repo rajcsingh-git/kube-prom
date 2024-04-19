@@ -1,0 +1,65 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prom-ing
+  namespace: prometheus
+spec:
+  rules:
+  -  host: promtest.com
+     http:
+       paths:
+       - pathType: Prefix
+         path: /
+         backend:
+           service:
+             name: prometheus-operated
+             port:
+               number: 9090
+#  tls:
+#  - hosts:
+#      - promtest.com
+#    secretName: my-secret
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ing
+  namespace: prometheus
+spec:
+  rules:
+  -  host: grafanatest.com
+     http:
+       paths:
+       - pathType: Prefix
+         path: /
+         backend:
+           service:
+             name: test-prom-grafana
+             port:
+               number: 80
+#  tls:
+#  - hosts:
+#      - grafanatest.com
+#    secretName: my-secret
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: am-ing
+  namespace: prometheus
+spec:
+  rules:
+  -  host: amtest.com
+     http:
+       paths:
+       - pathType: Prefix
+         path: /
+         backend:
+           service:
+             name: alertmanager-operated
+             port:
+               number: 9093
+  tls:
+  - hosts:
+      - amtest.com
+    secretName: my-secret

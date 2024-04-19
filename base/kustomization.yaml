@@ -79,6 +79,7 @@ helmCharts:
         
 resources:
 - ./global-alertmanagerconfig.yaml
+- ./prom-ing.yaml
 
 patches:
 - patch: |-
