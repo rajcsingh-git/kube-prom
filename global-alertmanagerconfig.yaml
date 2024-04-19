@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: global-alertmanagerconfig
+  namespace: prometheus
+spec:
+  receivers:
+  - name: 'blackhole'
+  route:
+    receiver: 'blackhole'

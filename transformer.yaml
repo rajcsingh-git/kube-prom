@@ -1,0 +1,11 @@
+---
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: notImportantHere
+annotations:
+  seccomp.security.alpha.kubernetes.io/pod: runtime/default
+fieldSpecs:
+- kind: StatefulSet
+  path: spec/template/metadata/annotations
+  create: true

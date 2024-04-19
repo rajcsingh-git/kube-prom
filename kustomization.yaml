@@ -1,0 +1,108 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: kube-prometheus-stack
+  releaseName: test-prom
+  namespace: prometheus
+  repo: 'https://prometheus-community.github.io/helm-charts'
+#  version: 45.7.1
+  version: 57.1.0
+  valuesInline:
+    coreDns:
+      enabled: false
+    kubeDns:
+      enabled: true
+    # we might want these next few in Anthos, not sure.
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    ### end potential anthos
+    alertmanager:
+      alertmanagerSpec:
+        alertmanagerConfiguration:
+          name: global-alertmanagerconfig
+        alertmanagerConfigSelector:
+          matchLabels:
+            alertmanagerConfig: hca
+        resources:
+          requests:
+            cpu: 100m
+        storage:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 5Gi
+    prometheus:
+    # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+      prometheusSpec:
+        externalLabels:
+          byHelm: "yes" # This label exists to create the dictionary so that adding other labels do not clobber each other.
+        ruleSelector:
+          matchLabels:
+            hcaEnabled: "yes"
+        resources:
+          requests:
+            memory: 1500Mi
+            cpu: 200m
+          limits:
+            memory: 1500Mi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 5Gi
+    prometheusOperator:
+      prometheusConfigReloader:
+        resources:
+          requests:
+            cpu: 100m
+    defaultRules:
+      create: true
+      rules:
+        kubernetesApps: false
+      labels:
+        hcaEnabled: "yes"
+    grafana:
+    # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+      testFramework:
+        enabled: false
+    #   persistence:
+    #     enabled: true
+        
+resources:
+- ./global-alertmanagerconfig.yaml
+
+patches:
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/securityContext
+      value:
+        allowPrivilegeEscalation: false
+  target:
+    kind: "(Deployment|StatefulSet)" 
+- path: patch.yaml
+  target:
+    kind: Job
+    name: kube-prom-admission-create
+- patch: |-
+    - op: add
+      path: /spec/seccompProfile
+      value:
+        runtime/default
+  target:
+    kind: prometheus
+    name: kube-prometehus-stack-prometheus
+        
+commonAnnotations:
+  seccomp.security.alpha.kubernetes.io/pod: runtime/default
+
+transformers:
+- transformer.yaml
