@@ -79,6 +79,7 @@ helmCharts:
     #     enabled: true
         
 resources:
+- ./prom-crds.yaml
 - ./global-alertmanagerconfig.yaml
 - ./prom-ing.yaml
 

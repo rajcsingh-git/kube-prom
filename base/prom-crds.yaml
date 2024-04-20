@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-crds
+#  finalizers:
+#  - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  destination:
+    name: in-cluster
+#    namespace: prometheus
+  project: default
+#  #project: cpa-infra
+  source:
+    repoURL: https://github.com/prometheus-community/helm-charts.git
+#    path: charts/kube-prometheus-stack/charts/crds/crds/
+    path: charts/kube-prometheus-stack/crds/
+    #targetRevision: kube-prometheus-stack-57.1.0
+    targetRevision: kube-prometheus-stack-45.7.1
+    directory:
+      recurse: true
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+    automated:
+      selfHeal: true
+
