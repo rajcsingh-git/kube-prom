@@ -6,8 +6,8 @@ helmCharts:
   releaseName: test-prom
   namespace: prometheus
   repo: 'https://prometheus-community.github.io/helm-charts'
-#  version: 45.7.1
-  version: 57.1.0
+  version: 45.7.1
+#  version: 57.1.0
 #  includeCRDs: true
   valuesInline:
     coreDns:
